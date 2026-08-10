@@ -2,7 +2,7 @@
 
 🚧 **REPO IN COSTRUZIONE** 🚧
 Proposta progettuale in fase di impostazione e valutaizione. Nessun modello è ancora implementato:
-Documentazione flusso logico proposto.
+Documentazione flusso logico proposto in valutazione.
 Il primo contenuto eseguibile è l'esempio esplorativo sui dati della Fase 1 in notebooks/01_processing_eda_fase1.ipynb
 
 ---
