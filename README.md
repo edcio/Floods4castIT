@@ -112,7 +112,7 @@ data/
 ## Roadmap
 
 - [x] Impostazione e rassegna preliminare
-- [x] **Verifiche bloccanti:** granularità archivi storici; licenza di ridistribuzione
+- [x] **Verifiche bloccanti:** granularità archivi storici
 - [x] `notebooks/01_processing_eda_fase1.ipynb`: scarico e visualizzazione livelli vs soglie (in corso)
 - [ ] Fase 1: modelli
 - [ ] Fase 1: UQ
