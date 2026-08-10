@@ -34,9 +34,9 @@ due potenziali moduli indipendenti che si incontrano solo in una matrice di esca
  └──────┬───────┘                               └────────┬─────────┘
         ▼                                                ▼
  ┌───────────────────────┐                      ┌──────────────────┐
- │ Uncertainty           │ incertezza applicata │ indice di         │
- │ Quantificazion        │ DOPO il modello      │ PREDISPOSIZIONE   │
- │ (Conformal Prediction)│                      │ per zona di       │
+ │ Uncertainty           │ incertezza applicata │ indice di        │
+ │ Quantificazion        │ DOPO il modello      │ PREDISPOSIZIONE  │
+ │ (Conformal Prediction)│                      │ per zona di      │
  └──────┬────────────────┘                      └────────┬─────────┘
         ▼                                                │
  ┌──────────────────────────┐                            │
