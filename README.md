@@ -7,7 +7,7 @@ Il primo contenuto eseguibile è l'esempio esplorativo sui dati della Fase 1 in 
 
 ---
 
-## Obiettico
+## Obiettivo
 
 **Quando** un fiume supererà la soglia di criticità ufficiale (Fase 1, dati a terra da idrometri e frequenza acquisizioni 15 minuti) e 
 **quanto il territorio è pronto** a trasformare quella piena in "danno" (Fase 2, solo dati satellirati se frequenza acquisizioni in giorni): 
