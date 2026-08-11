@@ -1,4 +1,4 @@
-# Soglie & Territorio — allertamento calibrato in due fasi per alluvioni in Italia (inizio da Emilia-Romagna e poi valutazione Toscana)
+#Allertamento calibrato in due fasi per alluvioni in Italia (inizio da Emilia-Romagna e poi valutazione Toscana)
 
 🚧 **REPO IN COSTRUZIONE** 🚧
 Proposta progettuale in fase di impostazione e valutaizione. Nessun modello è ancora implementato:
