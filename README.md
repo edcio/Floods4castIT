@@ -80,7 +80,9 @@ Dext3r (ER) / SIR (Toscana)  →  features (da definire)  →  Modello/i (da def
 - **Soglie:** quelle amministrative ufficiali del livello idrometrico per sezione (codici colore).
 - **UQ:** è un livello indipendente dall'architettura dei modelli; il problema che affronta è la quantificazione dell'incertezza.
 - **Confronti:** lineari, LightGBM, LSTM, KAN (con potenziale valultazioni di interpretabilità), etc..  ( da valutare)
-- 
+
+#### Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
+
 ## Fase 2 — predisposizione del territorio (solo satellite)
 
 ```
