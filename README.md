@@ -87,8 +87,8 @@ Dext3r (ER) / SIR (Toscana)  →  features (da definire)  →  Modello/i (da def
 dati satellitari ──────┐
                        ├──► stack temporale per zona ──► CV, tre livelli (da valutare):
 dati satellitari ──────┘                              L1 change detection (baseline)
-                                                      L2 segmentazione U-Net / TorchGeo
-                                                      L3 ConvLSTM: stato a t+k giorni
+                                                      L2 segmentazione 
+                                                      L3 previsione: stato a t+k giorni
                                                             │
                                               indice di predisposizione
                                               per zona di allerta
