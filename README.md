@@ -410,3 +410,24 @@ sé stante, indipendente dal modello predittivo e quindi applicabile a qualsiasi
 **Elementi da valutare per la proposta progettuale.** Un risultato controintuitivo utile in fase di
 progettazione: finestre di input **più corte** (1–2 ore) hanno prodotto errori inferiori rispetto a
 finestre più lunghe, comportamento che gli autori attribuiscono alla rapidità di risposta del bacino.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Altri riferimenti da approdondire
+
+### Luppichini et al. (2024)
+https://www.nature.com/articles/s41598-024-78012-2
+
+### Dazzi et al. (2021)
+https://www.mdpi.com/2073-4441/13/12/1612
