@@ -119,3 +119,81 @@ data/
 - [ ] Fase 2: Dati
 - [ ] Fase 2: modelli+UQ
 - [ ] Matrice di escalation e validazione sugli eventi (es per il 2023)
+
+________________________________________________________________________________________________________________________________________
+
+
+## Confronti e valutazioni:
+
+# **1) Nearing et al. (2024) [Google Flood Hub]**
+**Global prediction of extreme floods in ungauged watersheds.**
+
+https://www.nature.com/articles/s41586-024-07145-1
+
+LSTM encoder–decoder su 5.680 idrometri, **passo giornaliero** (non minuti o ore), orizzonte 7 giorni, senza alcun dato
+osservato di portata in ingresso. La valutazione è per eventi, su soglie definite da tempo di
+ritorno, e il risultato principale è che a 5 giorni di anticipo l'affidabilità paragonabile al nowcast di
+GloFAS.
+
+È il regime diverso da quello del progetto proposto. A seguire alciuni punti sostanziali:
+
+- il passo è **giornaliero**, non a minuti o ore: la dinamica dei bacini che rispondono in poche ore
+  è filtrata via per costruzione;
+- la variabile prevista è la **portata**, mentre le **soglie** di criticità italiane
+  sono definite sul **livello idrometrico** ufficiali;
+- le soglie sembrano derivare da **tempi di ritorno ricalcolati sulla serie simulata di ciascun modello e su valori osservati**
+  non valori assoluti pubblicati come nella proposta progettuale dove si fa riferimento a livelli idrometrici ufficiali.
+- il modello produce una **distribuzione predittiva** a ogni passo ed i risultati riportano solo
+  la mediana 
+- sul territorio italiano la copertura è **marginale** e concentrata pochi punti d'interesse (dettaglio nelle immagini).
+ 
+ 
+
+**Nel lavoro proposto:** un modulo veloce su livelli idrometrici con inerzie di
+15/30 minuti e/o ore proprie del regime strumentato; a valle, una caratterizzazione della predisposizione
+del suolo da acquisizioni satellitari che modula l'allerta anziché entrare come forzante a monte. 
+Non unicamente previsione da satellite, ma combinazione del dato a terra, che porta la granularità temporale, con
+quello satellitare, che porta lo stato del territorio. 
+In aggiunta: quantificazione dell'incertezza e confronto sistematico tra modelli alternativi.
+
+
+### Copertura di Flood Hub sul territorio italiano
+(Nota importante, dati ad oggi)
+
+Il portale dichiara oggi una copertura globale dell'ordine di 150 paesi e oltre 240.000 località.
+La copertura non è però uniforme in qualità: Google distingue le località **verificate**, dove è
+stata possibile una valutazione della qualità del modello contro osservazioni storiche o immagini
+satellitari, dalle altre e le prime sono circa 5.000. **Copertura non implica validazione.**
+
+Ad oggi, la copertura in Italia risulta bassa.
+
+Le immagini seguenti documentano la situazione osservata sul territorio italiano ad agosto 2026.
+
+<!-- Immagine 1: vista d'insieme del territorio nazionale -->
+![Copertura Flood Hub — Italia, vista d'insieme](docs/img/floodhub-italia-insieme.png)
+
+*Fig. A — Copertura Flood Hub sul territorio nazionale, fonte
+[g.co/floodhub](https://g.co/floodhub).*
+____________________________________________________________________________________________________________________________________
+<!-- Immagine 2: dettaglio sull'area di interesse del progetto -->
+![Copertura Flood Hub — dettaglio per le zone coperte (parzialmente/scarsamente) in Italia](docs/img/floodhub-italia-dettaglio.png)
+
+*Fig. B — Dettaglio sull'area di interesse del progetto (EmiliaRomagna - Toscana].* ,fonte
+[g.co/floodhub](https://g.co/floodhub).*
+____________________________________________________________________________________________________________________________________
+<!-- Immagine 3: confronto con paesi con alta copertura (es. India) -->
+![Copertura Flood Hub — dettaglio area di studio](docs/img/floodhub-confronto-paesi.png)
+
+*Fig. C — Confronto con paesi con alta copertura (es. India), fonte
+[g.co/floodhub](https://g.co/floodhub).*
+____________________________________________________________________________________________________________________________________
+<!-- Immagine 4: focus italia anche per GloFAS  -->
+![Copertura Flood Hub — dettaglio area di studio](docs/img/floodhub-confronto-GloFAS.png)
+
+*Fig. D — Confronto anch su copertura da GIoFAS* , fonte
+[GloFAS](https://global-flood.emergency.copernicus.eu/map)
+
+____________________________________________________________________________________________________________________________________
+
+**Nota sulla natura di questa verifica.** La copertura di Flood Hub cambia nel tempo e le immagini fanno riferimento a quanto disponibile ad agosto 2026.
+Il posizionamento del progetto **non dipende da questa verifica** rimane un modo diverso e potenzialmente valutabile per allarmi di natura alluvionale con particolare focus sull'Italia e sui bacini che sono sempre più importanti per territori e gestori di infrastrutture per avere sistemi nuovi e che sfruttino dati e informazioni sempre più nuovi ed aggiornati.
