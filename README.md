@@ -197,3 +197,63 @@ ________________________________________________________________________________
 
 **Nota sulla natura di questa verifica.** La copertura di Flood Hub cambia nel tempo e le immagini fanno riferimento a quanto disponibile ad agosto 2026.
 Il posizionamento del progetto **non dipende da questa verifica** rimane un modo diverso e potenzialmente valutabile per allarmi di natura alluvionale con particolare focus sull'Italia e sui bacini che sono sempre più importanti per territori e gestori di infrastrutture per avere sistemi nuovi e che sfruttino dati e informazioni sempre più nuovi ed aggiornati.
+
+
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+# 2) **Nevo et al. (2022)** [Google- sistema operativo India/Bangladesh]
+**Flood forecasting with machine learning models in an operational framework.**
+
+https://hess.copernicus.org/articles/26/4013/2022/
+*(N.d.R. il paper precede di due anni Nearing et al. 2024)*
+
+Studioa e allertamento in due parti, Stage forecast model e inundation model. A seguire focus sulla parte di Stage forecast model che è quello d'interesse da valutare.
+
+La previsione è affidata a una rete LSTM. La variabile
+prevista è il **livello idrometrico**. Passo orario, orizzonte 8–48 h, 167 idrometri su bacini da
+350 a 1.500.000 km² in India e Bangladesh. Fra gli input, oltre ai livelli osservati alla
+sezione obiettivo e a monte, anche la precipitazione stimata da dati satellitari.
+
+L'incertezza è modellata direttamente dalla rete con una CMAL (Countable Mixture of Asymmetric
+Laplacians): a ogni passo il modello produce i parametri di una insieme di distribuzioni anziché un
+singolo valore, viene poi mostrata la fascia fra il 20° e l'80° percentile. L'allarme
+scatta quando il massimo del livello previsto sull'intera finestra supera la soglia di allerta
+predefinita per quella sezione, fornita dalle autorità nazionali. La valutazione è riportata in
+termini di NSE (Nash–Sutcliffe Efficiency) e la vairante Persistent-NSE non con metriche le metriche per valutazione se superamento intercettato o no
+
+
+A seguire alciuni punti sostanziali rispetto alla proposta progettuale:
+
+- Regime dei bacini: lo studio è progettato per fiumi grandi a risposta lenta,
+   e gli autori indicano l'estensione ai bacini sotto i 1.000 km² come sviluppo futuro. Le metriche
+   riportate crescono infatti con l'area del bacino. La proposta progettuale lavora su bacini più
+   ridotti (caso italiano), a inerzie di 15/30 minuti e/o ore.
+
+- Oggetto della valutazione: lo studio fa parla di un sistema di riferimento che decide in modo binario (allarme o non allarme) rispetto a una soglia, ma viene valutato con NSE e Persistent-NSE. Nella proposta progettuale il **superamento della soglia di criticità è
+   l'oggetto stesso della valutazione**, insieme al tempo di anticipo effettivamente disponibile;
+   altre metriche saranno definite in base alle valutazioni preliminari.
+
+- Verifica dell'incertezza: la distribuzione predittiva è prodotta e usata, ma la valutazione
+   riportata resta su metriche di errore. La proposta progettuale introduce una **verifica della
+   copertura**: controllare che la frequenza con cui i valori osservati cadono dentro l'intervallo
+   previsto corrisponda al livello dichiarato, e che ciò valga anche separatamente in piena e non
+   solo in aggregato. La verifica è indipendente dal modello previsivo, quindi applicabile a
+   qualsiasi altro modello, e il livello di confidenza è impostabile in funzione dell'uso.
+
+- Comportamento oltre il record storico: quando l'ampiezza dell'incertezza stimata supera una
+   soglia, fissata a 50 cm nel paper, il sistema di riferimento accorcia il lead time fino a
+   rientrare sotto quel valore. Nella proposta progettuale la selezione dell'orizzonte è ricondotta
+   a un criterio di **copertura verificata** anziché di ampiezza.
+
+- Orizzonte come grandezza derivata: il lead time massimo è, nel paper, un parametro di
+   configurazione definito a priori per ciascuna stazione. Su bacini a risposta rapida l'orizzonte
+   determina l'utilità stessa del sistema: nella proposta progettuale viene **derivato** dal tempo
+   di risposta del bacino e dal punto oltre il quale la copertura non è più verificata.
+
+- Contesto di valutazione: gli autori segnalano in più punti la scarsità di studi di
+   valutazione di sistemi operativi e, nel confronto con la letteratura, reperiscono un solo
+   termine di paragone (51 idrometri in Iowa) riconoscendone la limitata comparabilità. Non
+   risultano riferimenti operativi in area europea o mediterranea.
+
