@@ -123,9 +123,9 @@ data/
 ________________________________________________________________________________________________________________________________________
 
 
-## Confronti e valutazioni:
+# Confronti e valutazioni:
 
-# **1) Nearing et al. (2024) [Google Flood Hub]**
+## **1) Nearing et al. (2024) [Google Flood Hub]**
 **Global prediction of extreme floods in ungauged watersheds.**
 
 https://www.nature.com/articles/s41586-024-07145-1
@@ -203,7 +203,84 @@ ________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 
-# 2) **Nevo et al. (2022)** [Google- sistema operativo India/Bangladesh]
+## 2 **Roudbari et al. (2024)**
+
+**From data to action in flood forecasting leveraging graph neural networks and digital twin visualization.**
+
+https://www.nature.com/articles/s41598-024-68857-y
+
+Lo studio propone un duplice framework: un modello previsionale e uno strumento di visualizzazione.
+Sul lato previsionale una GNN, con architettura encoder–decoder basata su blocchi GCRN (Graph
+Convolution Recurrent Network) con approccio **graph learning**: la matrice di
+connettività fra le stazioni non è imposta a priori dalla topologia fluviale ma **appresa dai dati**,
+scelta motivata dal fatto che la struttura reale della rete può essere ignota o mutare nel tempo.
+
+La variabile prevista è il **livello idrometrico**, a **passo giornaliero**, con orizzonti di 3, 6 e
+9 **giorni**, su 8 stazioni nell'area di Terrebonne (Montreal) con serie 2000–2021 da
+Environment and Climate Change Canada.
+
+Nel modello predittivo non sono utilizzati dati di precipitazione: gli input sono i
+soli livelli delle 8 stazioni. Suddivisione temporale 70/10/20. La valutazione usa MAE, MAPE e RMSE,
+confrontando con la media storica e con quattro modelli di previsione spaziotemporale (Informer,
+GTS, DCGCN, STAWnet) sviluppati in altri contesti, in particolare per la previsione del traffico.
+
+Sul lato visualizzazione, gli autori costruiscono un gemello digitale della città in ambiente di
+game engine per ulteriori simulazioni (fuori contesto rispetto alla proposta progettuale)
+
+A seguire alciuni punti sostanziali rispetto alla proposta progettuale:
+
+- Regime temporale: passo giornaliero e orizzonti di 3–9 giorni: è la scala della
+   pianificazione, non quella dell'allertamento su bacini a risposta rapida. La proposta
+   progettuale lavora a inerzie di 15/30 minuti e ore, dove l'orizzonte utile si misura in ore.
+
+- Trattamento delle anomalie: i valori mancanti sono ricostruiti con la media storica e la
+   serie è poi sottoposta a **smoothing gaussiano**, descritto dagli autori come mezzo per attenuare
+   le fluttuazioni improvvise senza compromettere i pattern sottostanti. Su un problema di previsione
+   di piene, tuttavia, la fluttuazione improvvisa **è** il segnale di interesse. Nella proposta
+   progettuale il filtraggio è limitato al rumore strumentale documentato e verificato sugli eventi,
+   e gli eventi maggiori sono oggetto di validazione dedicata anziché di attenuazione. Una parte
+   sostanziale del lavoro della proposta progettuale dovrà esser dedicata proprio al preprocessing e alla data quality: definizione
+   delle regole e delle metodologie per il trattamento dei dati mancanti e delle misure provenienti
+   da strumentazione con potenziali malfunzionamenti.
+
+- Oggetto della valutazione: le metriche riportate sono MAE, MAPE e RMSE aggregate sull'intera
+   serie di test, senza alcun riferimento a soglie. Nella proposta progettuale anche il **superamento
+   della soglia di criticità ufficiale è oggetto della valutazione**, insieme al tempo di anticipo
+   effettivamente disponibile.
+
+- Baseline di confronto: i termini di paragone sono la media storica e quattro modelli nati per
+   la previsione del traffico.
+Nella proposta progettuale, oltre a vari modelli da comparare, aggiungendo eventualmente GNN, tra i benckmark di prevederebbe anche una valutazione vs un modello semplificato che analizza unicamente una singola stazione di rilevamento.
+
+- Quantificazione dell'incertezza: è assente, il modello produce una previsione puntuale e la
+   valutazione è deterministica. La proposta progettuale introduce una verifica della copertura,
+   indipendente dal modello previsivo e quindi applicabile anche ad architetture alternative.
+
+- accoppiamento fra previsione e rappresentazione a valle: nel lavoro di riferimento le due
+   componenti restano in larga parte separate, e il confronto con la mappa di allagamento del 2017 è
+   **qualitativo**, senza metriche di sovrapposizione. Nella proposta progettuale il legame fra
+   componente previsiva e componente territoriale è quantificato, ed è centrale: le due parti
+   convergono nell'output finale del sistema.
+
+- Informazione territoriale nella previsione: gli autori indicano fra i lavori futuri
+   l'integrazione dell'informazione sulla quota del terreno all'interno della rete previsiva,
+   osservando che si tratta di un fattore influente attualmente non considerato. La proposta
+   progettuale muove in quella direzione, ma con una caratterizzazione dello **stato dinamico** del
+   territorio da acquisizioni satellitari.
+
+**Elementi da valutare per integrarli eventualmente nella proposta progettuale.** L'impiego di una GNN è un elemento da considerare nella proposta
+progettuale, insieme alla metodologia di gestione del dato. In particolare, la relazione fra le
+stazioni di misura appresa dai dati anziché derivata da una mappatura statica basata su informazioni
+anagrafiche della rete è un'opzione da valutare in termini di rapporto costi/benefici.
+
+
+
+
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+## 3) **Nevo et al. (2022)** [Google- sistema operativo India/Bangladesh]
 **Flood forecasting with machine learning models in an operational framework.**
 
 https://hess.copernicus.org/articles/26/4013/2022/
