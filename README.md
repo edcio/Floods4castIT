@@ -254,7 +254,7 @@ Nella proposta progettuale, oltre a vari modelli da comparare, aggiungendo event
 
 - Quantificazione dell'incertezza: è assente, il modello produce una previsione puntuale e la
    valutazione è deterministica. La proposta progettuale introduce una verifica della copertura,
-   indipendente dal modello previsivo e quindi applicabile anche ad architetture alternative.
+   indipendente dal modello predittivo e quindi applicabile anche ad architetture alternative.
 
 - accoppiamento fra previsione e rappresentazione a valle: nel lavoro di riferimento le due
    componenti restano in larga parte separate, e il confronto con la mappa di allagamento del 2017 è
@@ -316,7 +316,7 @@ A seguire alciuni punti sostanziali rispetto alla proposta progettuale:
    riportata resta su metriche di errore. La proposta progettuale introduce una **verifica della
    copertura**: controllare che la frequenza con cui i valori osservati cadono dentro l'intervallo
    previsto corrisponda al livello dichiarato, e che ciò valga anche separatamente in piena e non
-   solo in aggregato. La verifica è indipendente dal modello previsivo, quindi applicabile a
+   solo in aggregato. La verifica è indipendente dal modello predittivo, quindi applicabile a
    qualsiasi altro modello, e il livello di confidenza è impostabile in funzione dell'uso.
 
 - Comportamento oltre il record storico: quando l'ampiezza dell'incertezza stimata supera una
@@ -334,3 +334,79 @@ A seguire alciuni punti sostanziali rispetto alla proposta progettuale:
    termine di paragone (51 idrometri in Iowa) riconoscendone la limitata comparabilità. Non
    risultano riferimenti operativi in area europea o mediterranea.
 
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+
+## 4) **Oddo et al. (2024)**
+
+**Deep Convolutional LSTM for improved flash flood prediction.**
+
+<https://doi.org/10.3389/frwa.2024.1346104>
+
+Lo studio valuta se l'aggiunta di informazione **spaziale** migliori la previsione idrometrica su un
+bacino a risposta molto rapida. Il caso è il Tiber-Hudson di Ellicott City, colpito da due eventi
+classificati come millenari nel 2016 e nel 2018.
+
+La variabile prevista è il **livello idrometrico**, a passo **orario**, con 42.384 osservazioni fra
+gennaio 2016 e ottobre 2020. Il baseline è una LSTM alimentata dai livelli di due sole stazioni. A
+questa viene affiancata una ConvLSTM. Gli input spaziali sono quattro, su griglia 36×48 km a
+risoluzione 1 km per NEXRAD, umidità del suolo dal modello Noah, precipitazione
+satellitare IMERG, precipitazione accumulata, combinati isolando il contributo
+marginale di ciascuno.
+
+Il risultato principale è un miglioramento del ~26% dell'RMSE sugli istanti di piena rispetto al
+baseline.
+
+Rispetto agli altri riferimenti, questo lavoro **converge** con la proposta progettuale su alcune
+scelte e ne fornisce evidenza sperimentale.
+
+A seguire alciuni punti sostanziali rispetto alla proposta progettuale:
+
+- La risoluzione dei prodotti satellitari ha importanza: ad esempio IMERG e Noah, usati
+individualmente, producono gli errori più alti, gli autori attribuiscono il risultato alla loro risoluzione (11–12 km)
+rispetto al chilometro dei prodotti da NEXRAD. È un'indicazione sperimentale contro l'inserimento del
+dato satellitare a bassa risoluzione come input a monte, utile nelle valutazioni dei dati satellitari eventualmente da utilizzare nella proposta progettuale.
+
+- il vincolo alla granularità temporale è il satellite: gli autori osservano che dati idrometrici
+sub-orari sarebbero disponibili, ma che il fattore limitante è la frequenza delle osservazioni
+satellitari. È il principio alla base della proposta progettuale a due fasi: la scala veloce resta a
+terra, il satellite descrive lo sfondo su un'inerzia diversa.
+
+- la direzione futura indicata è la Fase 2: fra gli sviluppi gli autori indicano l'aggiunta di
+caratteristiche, come la copertura del suolo, da aggiungere alla metodologia.
+
+
+- orizzonte: la previsione è a **t+1 ora**, un solo passo. La proposta progettuale ha come obiettivo anche la valutare la
+degradazione lungo l'orizzonte temporale previsionale, nella proposta si parla di previsione multi orizzonte che è comunque oggettodi misura.
+
+- estensione della rete: lo studio utilizza due sole stazioni idrometriche su un singolo bacino.
+La proposta progettuale prevede di lavorare sulla rete regionale, con un numero di sezioni (quasi 300 stazioni solo in Emilia romagna e oltre 30 bacini)) e una
+profondità storica di 15/20 anni (almeno)
+
+- Soglia surrogata invece che ufficiale: l'ente locale dispone di soglie operative dichiarate, ma
+la valutazione usa una soglia ricavata statisticamente dai picchi della serie, situata circa 30 cm (1 foot)
+**sotto** la prima soglia ufficiale, che identifica 164 istanti di piena. Nella proposta progettuale
+il riferimento sono le soglie di criticità ufficiali, non un surrogato statistico.
+
+- Distanza fra metrica di errore e metrica di decisione: il miglioramento del 26% sull'RMSE ai
+picchi si traduce in un miglioramento del **6%** nella corretta identificazione degli istanti di
+piena, e gli autori riportano un elevato tasso di falsi negativi sia per la ConvLSTM sia per il
+baseline. Un guadagno sull'errore quadratico non implica quindi un guadagno equivalente sulla
+decisione di allertamento: nella proposta progettuale è quest'ultima a essere misurata direttamente.
+
+- eventi estremi nel training: entrambe le piene storiche ricadono nel periodo di addestramento.
+Gli autori eseguono una diagnostica separandole e riportano un **incremento del 52% dell'RMSE** sugli
+istanti di piena. È una misura esplicita del divario fra prestazioni in campione e fuori campione
+sugli estremi. Nella proposta progettuale la distribuzione degli eventi maggiori fra periodo di
+addestramento e periodo di test sarà esplicitata, con una validazione dedicata agli eventi che
+eccedono il massimo osservato in addestramento (comunque presenti dato l'intervallo storico ed i bacini considerati, alluvioni evento purtroppo ripetitivo in EmiliaROmagna e in Toscana)
+
+- Quantificazione dell'incertezza: assente nel paper: la valutazione è deterministica e basata su
+RMSE con test di significatività rispetto al baseline. Nella proposta progettuale è una componente a
+sé stante, indipendente dal modello predittivo e quindi applicabile a qualsiasi architettura.te.
+
+**Elementi da valutare per la proposta progettuale.** Un risultato controintuitivo utile in fase di
+progettazione: finestre di input **più corte** (1–2 ore) hanno prodotto errori inferiori rispetto a
+finestre più lunghe, comportamento che gli autori attribuiscono alla rapidità di risposta del bacino.
