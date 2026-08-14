@@ -1,118 +1,310 @@
-#Allertamento calibrato in due fasi per alluvioni in Italia (inizio da Emilia-Romagna e poi valutazione Toscana)
+# Floods4castIT
+
+## Allertamento calibrato in due fasi per alluvioni in Italia
+Avvio su Emilia-Romagna, con successiva valutazione di estensione alla Toscana.
 
 🚧 **REPO IN COSTRUZIONE** 🚧
-Proposta progettuale in fase di impostazione e valutaizione. Nessun modello è ancora implementato:
-Documentazione flusso logico proposto in valutazione.
-Il primo contenuto eseguibile è l'esempio esplorativo sui dati della Fase 1 in notebooks/01_processing_eda_fase1.ipynb
+
+Proposta progettuale in fase di impostazione e valutazione. Nessun modello è ancora
+implementato. Il documento descrive il flusso logico proposto, tuttora in valutazione,
+e le scelte metodologiche di dettaglio sono parte del lavoro di tesi e non ancora
+definite. Il primo contenuto eseguibile è l'esempio esplorativo sui dati della Fase 1 in
+`notebooks/01_processing_eda_fase1.ipynb`.
 
 ---
 
-## Obiettivo
+## Indice
 
-**Quando** un fiume supererà la soglia di criticità ufficiale (Fase 1, dati a terra da idrometri e frequenza acquisizioni 15 minuti) e 
-**quanto il territorio è pronto** a trasformare quella piena in "danno" (Fase 2, solo dati satellirati se frequenza acquisizioni in giorni): 
-due potenziali moduli indipendenti che si incontrano solo in una matrice di escalation dell'allerta.
-
----
-
-## Flusso logico complessivo
-
-```
- SCALA VELOCE — minuti/ore                      SCALA LENTA — giorni
- (reti di monitoraggio a terra)                 (solo dati satellitari)
-
- ┌─────────────────────┐                       ┌──────────────────┐
- │ livelli             │                       │ acquisizioni     │
- │ idrometrici         │                       │ Dati             │
- │ da stazioni a terra │                       │ Satellitari      │
- └──────┬──────────────┘                       └────────┬─────────┘
-        ▼                                               ▼
- ┌──────────────┐                               ┌──────────────────┐
- │ modello      │                               │ computer vision: │
- │ multi-       │                               │ stato del terreno│
- │ orizzonte    │                               │                  │
- └──────┬───────┘                               └────────┬─────────┘
-        ▼                                                ▼
- ┌───────────────────────┐                      ┌──────────────────┐
- │ Uncertainty           │ incertezza applicata │ indice di        │
- │ Quantificazion        │ DOPO il modello      │ PREDISPOSIZIONE  │
- │ (Conformal Prediction)│                      │ per zona         │
- └──────┬────────────────┘                      └────────┬─────────┘
-        ▼                                                │
- ┌──────────────────────────┐                            │
- │ P(superamento soglia)    │                            │
- │ + finestra temporale     │                            │
- └────────────┬─────────────┘                            │
-              │                                          │
-              └────────────────┬─────────────────────────┘
-                               ▼
-                ┌─────────────────────────────┐
-                │   MATRICE DI ESCALATION     │
-                │         (bozza)             │
-                │            fase 1 →         │
-                │  fase 2   niente s1-2 s2-3  │
-                │  ↓ alta   att.  ALL. MAX    │
-                │    media  ord.  all. ALL.   │
-                │    bassa  —     ord. att.   │
-                └─────────────────────────────┘
-                               ▼
-                    allerta finale per zona
-```
-
-I due moduli **non si scambiano informazione durante il calcolo**: si incontrano solo nella matrice definitiva. 
-Ogni modulo è a se stante.
+1. [Contesto e obiettivo](#1-contesto-e-obiettivo)
+   - 1.1 [Disponibilità dei dati](#11-disponibilità-dei-dati)
+3. [Architettura della proposta](#2-architettura-della-proposta)
+4. [Fase 1: dal dato puntuale alla valutazione lungo il fiume](#3-fase-1--dal-dato-puntuale-alla-valutazione-lungo-il-fiume)
+   - 3.1 [Struttura del problema](#31-struttura-del-problema)
+   - 3.2 [Impostazioni possibili](#32-impostazioni-possibili-in-bozza-e-solo-alcune-potenziali-idee)
+   - 3.3 [Dati in ingresso](#33-dati-in-ingresso)
+   - 3.4 [Orizzonte utile](#34-orizzonte-utile)
+   - 3.5 [Soglie nei punti non strumentati](#35-soglie-nei-punti-non-strumentati-da-valutare-complesso-ma-utile)
+   - 3.6 [Qualità del dato idrometrico](#36-qualità-del-dato-idrometrico)
+   - 3.7 [Output della Fase 1](#37-output-della-fase-1)
+4. [Fase 2: dalla stima di livello all'area impattata](#4-fase-2-dalla-stima-di-livello-allarea-impattata)
+   - 4.1 [Impostazione](#41-impostazione)
+   - 4.2 [Stima di partenza e correzione appresa](#42-stima-di-partenza-e-correzione-appresa)
+   - 4.3 [Ingresso dalla Fase 1 e degradabilità](#43-ingresso-dalla-fase-1-e-degradabilità)
+   - 4.4 [Etichette e qualità del dato satellitare](#44-etichette-e-qualità-del-dato-satellitare)
+   - 4.5 [Output della Fase 2](#45-output-della-fase-2)
+5. [Quantificazione dell'incertezza](#5-quantificazione-dellincertezza)
+6. [Output complessivi e matrice opzionale](#6-output-complessivi-e-matrice-opzionale)
+7. [Dati](#7-dati)
+8. [Roadmap](#8-roadmap)
+9. [Confronti e valutazioni](#9-confronti-e-valutazioni)
 
 ---
 
-## Fase 1 — previsione del superamento di soglia
+## 1. Contesto e obiettivo
 
-```
-Dext3r (ER) / SIR (Toscana)  →  features (da definire)  →  Modello/i (da definire)
-                                                          │
-                                                   UQ (Conformal)
-                                                          │
-                                              traiettoria + intervallo
-                                                          │
-                                    derivazioni: P(soglia), finestra [t1,t2]
-```
+Un idrometro misura un punto. Un'allerta riguarda una zona e la prposta progettuale si inserisce proprio in queste specifiche stime e nella loro combinazione.
 
-- **Target:** regressione multi-orizzonte del livello ( es: 30 min - 6 h); superamento e tempo al superamento.
-- **Soglie:** quelle amministrative ufficiali del livello idrometrico per sezione (codici colore).
-- **UQ:** è un livello indipendente dall'architettura dei modelli; il problema che affronta è la quantificazione dell'incertezza.
-- **Confronti:** lineari, LightGBM, LSTM, KAN (con potenziale valultazioni di interpretabilità), etc..  ( da valutare)
+L'obiettivo si articola su due fasi.
 
-#### Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
+**Fase 1.** Stimare il livello nei punti di rilevazione e possibilmente ache lungo l'intero fiume, anche nei tratti fra un
+idrometro e l'altro, identificando il livello idrometrico e dove verranno superate le soglie di criticità, con
+valutazione basata sul solo livello idrometrico. Si parte dai soli dati degli idrometri:
+per l'Emilia-Romagna circa 300 stazioni, con serie a 15 e 30 minuti e profondità storica
+variabile fra i 15 e i 25 anni.
 
-## Fase 2 — predisposizione del territorio (solo satellite)
+**Fase 2.** Tradurre il profilo di livello nell'area che verrà presumibilmente
+interessata dall'acqua, sfruttando dati satellitari.
 
-```
-dati satellitari ──────┐
-                       ├──► stack temporale per zona ──► CV, tre livelli (da valutare):
-dati satellitari ──────┘                              L1 change detection (baseline)
-                                                      L2 segmentazione 
-                                                      L3 previsione: stato a t+k giorni
-                                                            │
-                                              indice di predisposizione
-                                              per zona di allerta
-                                              (+ UQ, a valle )
-```
+In entrambe le fasi, oltre al valore in output si mira a fornire una quantificazione
+dell'incertezza, così da ottenere un risultato finale corredato da una misura di
+confidenza, sfruttando framework come la conformal prediction.
 
-- **Concetto:** valutazione di "predisposizione al rischio" del suolo in luogo dei metodi "classici" idrologici ma con **osservazioni dei dati satellitari**
-- **L'inerzia temporale diversa è il principio di progetto:** il satellite non insegue la piena, descrive lo sfondo su cui la piena arriva.
+### 1.1 Disponibilità dei dati
+Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 anni con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
 
 ---
 
-## Struttura del repository (in fase di costruzione)
+## 2. Architettura della proposta
+
+Le due fasi formano una catena. La Fase 1 produce un profilo di livello lungo l'asta,
+che la Fase 2 utilizza come ingresso principale.
 
 ```
-notebooks/
-docs/
-data/
+FASE 1 — idrometri
+      │
+      ├──► allerta preliminare per punto d'interesse
+      │
+      ▼
+profilo di livello lungo il fiume
+      │
+      ▼
+FASE 2 — satellite e rilevazioni per dettagli su terreno
+      │
+      ▼
+area potenzialmente interessata
+      │
+      ▼ (opzionale)
+matrice di traduzione per gestore
 ```
 
+La Fase 1 produce un output utilizzabile per conto proprio, disponibile prima e
+indipendentemente dalla Fase 2. La matrice finale è un livello opzionale e non
+vincolante.
 
-## Roadmap
+---
 
+## 3. Fase 1 — dal dato puntuale alla valutazione lungo il fiume
+
+### 3.1 Struttura del problema
+
+Il problema ha tre caratteristiche che qualunque impostazione dovrebbe sfruttare.
+
+La prima è la **topologia**: le sezioni di un'asta fluviale sono ordinate da monte a
+valle, e l'informazione si propaga in quella direzione con un ritardo legato al tempo di
+transito.
+
+La seconda è il **vincolo bilaterale**: un punto di interesse compreso fra due stazioni
+è racchiuso fra due misure. L'onda che vi transita è stata osservata a monte e sarà
+osservata a valle.
+
+La terza è la **geometria del tratto**, che modula la propagazione: distanza, dislivello,
+pendenza, larghezza dell'alveo, presenza di confluenze o casse di espansione.
+
+I punti da stimare sono gli idrometri stessi, le confluenze, e i punti che interessano a
+chi deve decidere (zone popolate o gestori di infrastrutture), quali attraversamenti, nuclei abitati, prese e sottopassi, che
+potrebbero non coincidere con una stazione di misura.
+
+### 3.2 Impostazioni possibili (in bozza e solo alcune potenziali idee)
+
+Diverse impostazioni possono catturare le caratteristiche descritte sopra. La scelta: sul confronto con le baseline è uno dei punti importanti della fase 1.
+-  modelli per punto su feature costruite dalle stazioni vicine, con ritardi calibrati (potenziale nucleo iniziale)
+- interpolazione del profilo lungo la coordinata curvilinea del fiume, con vincoli di plausibilità idraulica (da valutare se inserire tematiche vincolate al mondo idraulico)
+- valutare reti su grafo con archi informati dalla geometria per sfruttare esplicitamente la topologia del territorio.
+- modelli di propagazione a parametri appresi, di ispirazione idraulica o modelli sequenziali multi-stazione con rappresentazione dei nodi
+
+L'elenco non è esaustivo e non implica una preferenza già assunta. Si mira a
+identificare un livello previsto su più orizzonti temporali, potenzialmente in ogni
+sezione del fiume in analisi ma partendo in primis dalle stazioni disponibili.
+
+### 3.3 Dati in ingresso
+
+L'idea è di **non** usare i dati di precipitazione, né osservati né previsti. Eventualmente,
+se necessario, si valuterà l'uso di dati satellitari a corredo, ma limitatamente alla potenziale possibilità di
+ricostruzione delle soglie idrometriche statiche nelle sezioni non strumentate.
+
+La scelta ha una motivazione strutturale. Un punto compreso fra due idrometri non è un
+bacino privo di misure, dove la precipitazione diventerebbe necessariamente
+l'informazione dominante. L'onda che vi transita è stata osservata a monte e sarà
+osservata a valle, quindi si tratta di un problema al contorno più che di
+estrapolazione. Le stazioni di monte portano la forzante già integrata dal bacino.
+
+### 3.4 Orizzonte utile
+
+L'orizzonte previsionale utile non è arbitrario, ma potrebbe essere potenzialmente limitato dal tempo di transito dell'onda dalle stazioni di monte (almeno fisicamente è così). Mentre l'orizzonte predittivo è d valutare con i dati a disposizione per prevedere con x ore di anticipo e si mira a stimarlo relazionando gli eventi storici edi dati a dispozione.
+
+### 3.5 Soglie nei punti non strumentati (da valutare, complesso ma utile)
+
+Nei punti non strumentati le soglie ufficiali non esistono, e serve valutare come
+ricostruirle usando le sezioni adiacenti o altre informazioni, eventualmente di origine
+satellitare. Le soglie così ottenute sono stime e vanno presentate come tali, distinte
+dai codici colore ufficiali.
+
+### 3.6 Qualità del dato idrometrico
+
+Le serie idrometriche presentano lacune, valori bloccati, derive dello zero e salti. Il problema principale è che un picco di
+piena e un sensore che si "rompe" si somigliano molto: entrambi producono variazioni
+rapide e valori fuori scala, e una procedura di pulizia semplicistica rischia di eliminare
+proprio gli eventi che interessano.
+
+Sarà necessario studiare in primo luogo queste dinamiche, affiancando metodi data-driven
+a vincoli di plausibilità fisica sulla velocità di variazione, coerenti con il tempo di
+risposta della sezione. Una leva utile è la coerenza fra stazioni dello stessa fiume:
+un'onda reale si manifesta anche a monte e a valle con il ritardo atteso, mentre un
+guasto resta locale (potenziale logica da implementare ma no unica).
+
+Va tenuto presente un vincolo metodologico: se l'insieme usato per la calibrazione delle
+garanzie contiene valori ricostruiti, la garanzia si riferisce in parte a dati sintetici e anche questo è un tema da valutare negli impatti metodologici e di qualità.
+
+### 3.7 Output della Fase 1
+
+Un'allerta preliminare per punto d'interesse, con finestra temporale e quantificazione
+dell'incertezza, disponibile prima e indipendentemente dalla Fase 2.
+
+---
+
+## 4. Fase 2: dalla stima di livello all'area impattata
+
+### 4.1 Impostazione
+
+In questa fase la stima parte invece dal livello previsto insieme ai dati saptellitari ma no per prevedere il livello ma per stimare le aree potenzialmente impattate dal'evento, quindi: **Tradurre il profilo di livello
+nell'area che verrà presumibilmente interessata dall'acqua (sfruttando dati satellitari)**
+
+Si mira a valutare cosa è avvenuto in eventi realmente osservati, senza dipendere da un
+modello idraulico. L'impostazione va approfondita in fase di analisi di dettaglio.
+
+### 4.2 Stima di partenza e correzione appresa
+
+Se si conosce il livello dell'acqua nel fiume, una prima stima di dove l'acqua si
+espande si può ottenere dalla sola forma del terreno.
+Il terreno da solo, però, potenzialmente può non spiegare tutto. Argini, rilevati etc.. fanno sì che l'acqua reale si comporti
+diversamente da come farebbe su una superficie priva di opere.
+
+L'impostazione prevista è quindi in due passi (da valutare, l'impostazione è in bozza):
+
+1. una **stima di partenza** calcolata dal terreno e dal livello,
+2. una **correzione appresa** sugli eventi realmente osservati, che modifica quella
+   stima dove la realtà se ne è discostata.
+
+Potenzialmente fare learning da una correzione oppure farlo da zero stiando lo spostamento dell'acqua.
+
+Per la stima di partenza esistono più modi possibili, che si distinguono per quanta
+informazione sul terreno richiedono e per quanto bene reggono su terreni diversi. La
+scelta va fatta in fase di dettaglio progettuale valutando alcune opzioni (a seguire alcuni esempi ma ancora da definire):
+
+- quota risoetto al terreno e/o quota rispetto al punto i drenaggio più vicino
+- forma della piana alluvionale per individuare l'area potenzialmente allagabile
+- mappe di pericolosità (già esistenti)
+- eventi passati (evento storico con livelli più simili e si riusa la sua estensione osservata)
+
+Il punto importante è che la stima di partenza viene calcolata o con un punti noti (stazioni) o meglio anche con il profilo longitudinale totale che
+la Fase 1 produce lungo il fiume, inclusi i punti fra un idrometro e l'altro.
+
+### 4.3 Ingresso dalla Fase 1 e degradabilità
+
+Il modello riceve input in diversi modi (da valutare inbase alla complessità ed alle modalità pratiche implementate nella fase 1) : 
+- profilo completo con incertezza nella configurazione nominale
+- profilo senza incertezza
+- singolo livello osservato sui punti noti (stazioni)
+- nessun livello disponibile, sola topografia.
+
+
+### 4.4 Etichette e qualità del dato satellitare
+
+Un'acquisizione satellitare è un'istantanea a un istante arbitrario dell'evento, potenzialmente non nel momento di massima estensione. Accoppiare con il
+livello all'ora di acquisizione, ricostruito dalla serie idrometrica, sarebbe il modo più efficiente (questa parte è una parte importante dela fase 2 e parallelamente più complessa per la diversa inierzia temporale tra idrometri e dati satellitari).
+
+### 4.5 Output della Fase 2
+
+Una stima dell'area presumibilmente interessata, corredata da quantificazione
+dell'incertezza in forma di regione.
+
+---
+
+## 5. Quantificazione dell'incertezza
+
+### 5.1 Il problema nella Fase 1
+
+La conformal prediction fornisce intervalli con copertura garantita senza assumere una
+distribuzione, a patto che i dati di calibrazione e quelli futuri siano scambiabili (ci sono anche metodi di Conformal per gestire questa tematica proprio su problemi di timeseries).
+La calibrazione
+potrebbe avvenire su una stazione e, per l'estensione a zone senza stazioni di rilevamento. Si trattarebbe di
+uno spostamento di distribuzione nello spazio anziché nel tempo (da valutarne le specificità pratiche).
+
+I protocollo è da definire ma, ad eempio, si potrebbe prendere ogni idrometro reale ed escluderlo escluso a turno,
+trattato come non strumentato e predetto dagli altri. Con N stazioni si ottengono N
+esperimenti, e il risultato atteso potrebbe essere la curva della copertura empirica in funzione della
+distanza dal più vicino idrometro. È un
+risultato riutilizzabile da chiunque disponga di una rete idrometrica.
+
+Quale variante di conformal sia la più adatta, dato che le serie sono autocorrelate e
+non stazionarie, è una scelta da compiere sui dati.
+
+### 5.2 Il problema nella Fase 2
+
+Qui l'oggetto garantito non è un intervallo ma una regione: un contorno interno di aree
+quasi certamente allagate e uno esterno di aree possibili, con garanzia che l'estensione
+reale sia contenuta fra i due.
+
+Quale garanzia sia quella corretta, se per pixel, per frazione di area o per evento
+intero fa parte dell'analisi.
+
+### 5.3 La composizione lungo la catena
+
+Da valutare come combinere le quantificazioni di incertezza cobinate.
+
+---
+
+## 6. Output complessivi e matrice opzionale
+
+**Allerta preliminare**, dalla Fase 1: dove e quando verranno superate le soglie, con
+quale anticipo e con quale garanzia. Disponibile per prima e indipendente dal resto.
+
+**Allerta con impatto atteso**, dalla catena completa: quale area verrà interessata, in
+forma di regione garantita.
+
+**Matrice di traduzione, opzionale.** Le due uscite sono complete senza di essa. Per chi
+voglia convertirle in decisione operativa, la matrice le combina secondo il proprio
+profilo di rischio: un gestore infrastrutturale ragiona per sottopassi e teme l'allerta mancata,
+un operatore logistico ragiona per magazzini e teme il falso allarme ed un'amministrazione comunale può avere metodi diversi.
+
+Che la regola sia esplicita e non appresa risponde a un requisito, dato che chi allerta
+deve poter spiegare perché. Si prevede comunque di misurare quanto si perda rispetto a
+una regola di combinazione appresa. La configurabilità non viene affermata, ma mostrata
+attraverso le curve di trade-off fra allerte mancate e falsi allarmi calcolate
+sull'archivio storico.
+
+---
+
+## 7. Dati
+
+Tutte le fonti sono (devono) essere aperte.
+
+**Idrometria.** Archivi regionali e soglie ufficiali per sezione. Si lavora sui livelli
+e non sulle portate, poiché queste dipendono da scale di deflusso soggette ad
+aggiornamento continuo. Dato che lo zero idrometrico è una quota convenzionale diversa
+per ogni stazione, tutte le variabili vanno gestite rispetto a questo punto.
+
+**Satellite.** Da valutare quali dati usare-
+L'archivio non è omogeneo nel tempo, e la disomogeneità va tenuta in conto. Quali/quanti
+dati utilizzare, e se integrarne altre oltre a quelle ad accesso libero, è una
+valutazione da fare in corso d'opera.
+
+**Modello del terreno.** (da valutare se usarlo) merita attenzione particolare. Vanno considerate anche l'età del
+rilievo, poiché un modello può precedere opere realizzate successivamente, e la
+differenza fra modello del terreno e modello della superficie.
+
+## 8. Roadmap
+(sezione in bozza)
 - [x] Impostazione e rassegna preliminare
 - [x] **Verifiche bloccanti:** granularità archivi storici
 - [x] `notebooks/01_processing_eda_fase1.ipynb`: scarico e visualizzazione livelli vs soglie (in corso)
@@ -120,14 +312,14 @@ data/
 - [ ] Fase 1: UQ
 - [ ] Fase 2: Dati
 - [ ] Fase 2: modelli+UQ
-- [ ] Matrice di escalation e validazione sugli eventi (es per il 2023)
+- [ ] (da definire)
 
 ________________________________________________________________________________________________________________________________________
 
 
-# Confronti e valutazioni:
+## 9. Confronti e valutazioni
 
-## **1) Nearing et al. (2024) [Google Flood Hub]**
+### 9.1 Nearing et al. (2024) [Google Flood Hub]
 **Global prediction of extreme floods in ungauged watersheds.**
 
 https://www.nature.com/articles/s41586-024-07145-1
@@ -152,14 +344,14 @@ GloFAS.
  
 
 **Nel lavoro proposto:** un modulo veloce su livelli idrometrici con inerzie di
-15/30 minuti e/o ore proprie del regime strumentato; a valle, una caratterizzazione della predisposizione
-del suolo da acquisizioni satellitari che modula l'allerta anziché entrare come forzante a monte. 
-Non unicamente previsione da satellite, ma combinazione del dato a terra, che porta la granularità temporale, con
-quello satellitare, che porta lo stato del territorio. 
+15/30 minuti e/o ore proprie del regime strumentato; a valle, una stima dell'area presumibilmente interessata dall'acqua, ricavata dal
+profilo di livello previsto e da acquisizioni satellitari, che non entra come input
+a monte ma traduce la previsione idrometrica in informazione territoriale. 
+Non unicamente previsione da satellite, ma sfruttare l'informazione satellitare che porta la dimensione spaziale. 
 In aggiunta: quantificazione dell'incertezza e confronto sistematico tra modelli alternativi.
 
 
-### Copertura di Flood Hub sul territorio italiano
+#### Copertura di Flood Hub sul territorio italiano
 (Nota importante, dati ad oggi)
 
 Il portale dichiara oggi una copertura globale dell'ordine di 150 paesi e oltre 240.000 località.
@@ -205,7 +397,7 @@ ________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 
-## 2 **Roudbari et al. (2024)**
+### 9.2 Roudbari et al. (2024)
 
 **From data to action in flood forecasting leveraging graph neural networks and digital twin visualization.**
 
@@ -282,7 +474,7 @@ ________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 
-## 3) **Nevo et al. (2022)** [Google- sistema operativo India/Bangladesh]
+### 9.3 Nevo et al. (2022) [Google- sistema operativo India/Bangladesh]
 **Flood forecasting with machine learning models in an operational framework.**
 
 https://hess.copernicus.org/articles/26/4013/2022/
@@ -341,7 +533,7 @@ ________________________________________________________________________________
 ____________________________________________________________________________________________________________________________________
 
 
-## 4) **Oddo et al. (2024)**
+### 9.4 Oddo et al. (2024)
 
 **Deep Convolutional LSTM for improved flash flood prediction.**
 
@@ -426,10 +618,65 @@ finestre più lunghe, comportamento che gli autori attribuiscono alla rapidità 
 
 
 
-# Altri riferimenti da approdondire
+### 9.5 Altri riferimenti da approfondire
 
-### Luppichini et al. (2024)
+(Riferimenti da revisionera dettagliatamente, ad oggi valutati in bozza )
+
+- Troung et al. (2026): HIGNN — Hydrological Interpolation based on Graph Neural Network
+Advances in Water Resources, 2026
+https://www.sciencedirect.com/science/article/pii/S0309170826000576
+>(Rete a grafo per stimare il livello in siti non strumentati, con archi che portano
+attributi del terreno. Vicino alla Fase 1 (tra io pochi riferimenti con questo tema nella loro analisi).
+Da approfondire: interpola al presente anziché prevedere, e non quantifica
+l'incertezza)
+
+
+
+- Kratzert et al. (2019) :Prediction in Ungauged Basins with Long Short-Term Memory Networkshttps:https:
+ https://www.researchgate.net/publication/335415849_Prediction_in_Ungauged_Basins_with_Long_Short-Term_Memory_Networks
+>Filone ampio su bacini interi privi di misure. proposta progettuale non un fiume senza punti di rilevazione ma rilevazioni tra punti con stazione presente)
+
+- Tibshirani et al. (2019): Conformal prediction under covariate shift
+https://arxiv.org/abs/1904.06019
+> Base teorica per il caso in cui la calibrazione avviene su una stazione e la garanzia
+> serve su un'altra. *Da verificare quanto sia direttamente applicabile. (da completare)*
+
+- repository completa per lavori su Conformal Prediction: 
+ https://github.com/valeman/awesome-conformal-prediction
+
+- repository su valutazione Transformers per timeseries (o meglio perchè non usarli)
+https://github.com/valeman/Transformers_And_LLM_Are_What_You_Dont_Need
+
+- Barbetta et al (2017): The multi temporal/multi-model approach to predictive uncertainty assessment in real-time flood forecasting
+https://www.researchgate.net/publication/317598233_The_multi_temporalmulti-model_approach_to_predictive_uncertainty_assessment_in_real-time_flood_forecasting
+> Stima la probabilità di superamento di soglie idrometriche entro un orizzonte e il
+> momento più probabile del superamento (ma con approccio Bayesiano)
+inoltre usa la pioggia e non fornisce garanzie di copertura.
+
+
+- Luppichini et al. (2024): Machine learning models for river flow forecasting in small catchments
 https://www.nature.com/articles/s41598-024-78012-2
+> Contesto toscano, da studiare e potenzialamente rilevante e con spunti utili per la proposta progettuale
 
-### Dazzi et al. (2021)
+- Gambini et al. (2023): An empirical rainfall threshold approach for the civil protection flood warning system on the Milan urban area
+https://www.sciencedirect.com/science/article/pii/S0022169423014555
+> Dichiara esplicitamente due limiti: il basso numero di eventi di superamento e la non stazionarietà della risposta di bacino.
+
+- Capo et al. (2026): Monitoring Flood Inundation Dynamics From Space
+https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2025RG000885
+> Rassegna di riferimento del campo.
+
+- Sharma, Saharia (2026): DeepSARFlood: Rapid and automated SAR-based flood inundation mapping using vision transformer-based deep ensembles with uncertainty estimates
+https://www.sciencedirect.com/science/article/pii/S2666017225000094
+> Ensemble con stime di incertezza, ed etichette deboli da immagini ottiche concomitanti. Da valutare potenziale utilità per uso dati satellitari.
+
+- Kabir et al. (2020): A deep convolutional neural network model for rapid prediction of fluvial flood inundation
+https://www.researchgate.net/publication/342522065_A_deep_convolutional_neural_network_model_for_rapid_prediction_of_fluvial_flood_inundation
+> CNN addestrata su input da modello idrodinamico.  (da analizzre meglio su cosa fanno training)
+
+- Fereshtehpour et al. (2025): Impacts of DEM Type and Resolution on Deep Learning-Based Flood Inundation Mapping
+https://arxiv.org/abs/2309.13360
+> potenziale utilità per la fase due della proposta progettuale.
+
+- Dazzi et al. (2021): Flood Stage Forecasting Using Machine-Learning Methods: A Case Study on the Parma River (Italy)
 https://www.mdpi.com/2073-4441/13/12/1612
