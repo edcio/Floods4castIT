@@ -8,7 +8,7 @@ Avvio su Emilia-Romagna, con successiva valutazione di estensione alla Toscana.
 Proposta progettuale in fase di impostazione e valutazione. Nessun modello è ancora
 implementato. Il documento descrive il flusso logico proposto, tuttora in valutazione,
 e le scelte metodologiche di dettaglio sono parte del lavoro di tesi e non ancora
-definite. Il primo contenuto eseguibile è l'esempio esplorativo sui dati della Fase 1 in
+definite. Il primo contenuto analizzato è l'esempio esplorativo sui dati della Fase 1 in
 `notebooks/01_processing_eda_fase1.ipynb`.
 
 ---
@@ -42,7 +42,7 @@ definite. Il primo contenuto eseguibile è l'esempio esplorativo sui dati della 
 
 ## 1. Contesto e obiettivo
 
-Un idrometro misura un punto. Un'allerta riguarda una zona e la prposta progettuale si inserisce proprio in queste specifiche stime e nella loro combinazione.
+Un idrometro misura un punto, un'allerta riguarda una zona e la prposta progettuale si inserisce proprio in queste specifiche stime e nella loro combinazione.
 
 L'obiettivo si articola su due fasi.
 
@@ -53,11 +53,11 @@ per l'Emilia-Romagna circa 300 stazioni, con serie a 15 e 30 minuti e profondit�
 variabile fra i 15 e i 25 anni.
 
 **Fase 2.** Tradurre il profilo di livello nell'area che verrà presumibilmente
-interessata dall'acqua, sfruttando dati satellitari.
+interessata dall'alluvione, sfruttando dati satellitari.
 
 In entrambe le fasi, oltre al valore in output si mira a fornire una quantificazione
 dell'incertezza, così da ottenere un risultato finale corredato da una misura di
-confidenza, sfruttando framework come la conformal prediction.
+confidenza, sfruttando framework come Conformal Prediction.
 
 ### 1.1 Disponibilità dei dati
 Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 anni con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
@@ -66,7 +66,7 @@ Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dex
 
 ## 2. Architettura della proposta
 
-Le due fasi formano una catena. La Fase 1 produce un profilo di livello lungo l'asta,
+Le due fasi formano una catena. La Fase 1 produce un profilo di livello lungo ll fiume,
 che la Fase 2 utilizza come ingresso principale.
 
 ```
@@ -97,20 +97,20 @@ vincolante.
 
 ### 3.1 Struttura del problema
 
-Il problema ha tre caratteristiche che qualunque impostazione dovrebbe sfruttare.
+Il problema ha tre caratteristiche:
 
-La prima è la **topologia**: le sezioni di un'asta fluviale sono ordinate da monte a
-valle, e l'informazione si propaga in quella direzione con un ritardo legato al tempo di
+- la **topologia**: le sezioni del fiume, ordinate da monte a
+valle, dove l'informazione si propaga con un ritardo legato al tempo di
 transito.
 
-La seconda è il **vincolo bilaterale**: un punto di interesse compreso fra due stazioni
+- il **vincolo bilaterale**: un punto di interesse compreso fra due stazioni
 è racchiuso fra due misure. L'onda che vi transita è stata osservata a monte e sarà
 osservata a valle.
 
-La terza è la **geometria del tratto**, che modula la propagazione: distanza, dislivello,
+- la **geometria del tratto**, che modula la propagazione: distanza, dislivello,
 pendenza, larghezza dell'alveo, presenza di confluenze o casse di espansione.
 
-I punti da stimare sono gli idrometri stessi, le confluenze, e i punti che interessano a
+I punti da stimare sono gli idrometri stessi ma anchee i punti che interessano a
 chi deve decidere (zone popolate o gestori di infrastrutture), quali attraversamenti, nuclei abitati, prese e sottopassi, che
 potrebbero non coincidere con una stazione di misura.
 
@@ -135,8 +135,7 @@ ricostruzione delle soglie idrometriche statiche nelle sezioni non strumentate.
 La scelta ha una motivazione strutturale. Un punto compreso fra due idrometri non è un
 bacino privo di misure, dove la precipitazione diventerebbe necessariamente
 l'informazione dominante. L'onda che vi transita è stata osservata a monte e sarà
-osservata a valle, quindi si tratta di un problema al contorno più che di
-estrapolazione. Le stazioni di monte portano la forzante già integrata dal bacino.
+osservata a valle, quindi si tratta di un problema al contorno. Le stazioni di monte portano la forzante già integrata dal bacino.
 
 ### 3.4 Orizzonte utile
 
