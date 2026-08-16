@@ -62,8 +62,9 @@ confidenza, sfruttando framework come Conformal Prediction.
 ### 1.1 Disponibilità dei dati
 Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 anni con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
 
+sia per Emilia-Romagna che per Toscana non sono presenti vincoli dirimenti per l'audio dei dati per la proposta progettuale.
 
-Per l'Emilia-Romagna 
+Per l'Emilia-Romagna
 - Livelli idrometrici storici, da Arpae SIMC, rete idrometeorologica regionale (RIRER).
   Estrazione da [Dext3r](https://simc.arpae.it/dext3r/); condizioni d'uso nelle Note legali della
   [guida ufficiale](https://simc.arpae.it/dext3r/doc/GuidaDext3r.html). Il servizio è gratuito e aperto a
@@ -73,6 +74,14 @@ Per l'Emilia-Romagna
   [Meteo – dati osservati](https://dati.arpae.it/dataset/dati-dalle-stazioni-meteo-locali-della-rete-idrometeorologica-regionale),
   relativo alla rete di rilevamento).
 
+Per la Toscana:
+
+- Livelli idrometrici storici dal Servizio Idrologico Regionale (SIR). Dati ricavabili da : [archivio storico SIR](http://www.sir.toscana.it/consistenza-rete) analizzando i soli Idrometri. Per le condizioni d'uso, dichiarate sulla pagina dell'archivio unicamente l'obbligo di citare la fonte in ogni
+  pubblicazione, lavoro professionale o altra produzione ottenuta facendo uso dei dati forniti.
+Sul [portale open data regionale](https://dati.toscana.it/) il dataset
+  [Stazioni meteo-idrologiche](https://dati.toscana.it/dataset/stazioni-meteo-idrologiche), viene rilasciato
+  con licenza CC-BY-SA; copre però i livelli idrometrici solo come medie giornaliere (0–24) e
+  osservazioni meridiane, non le serie a 15 minuti (che rimangono utilizzabili con le specifiche prima riportate)
 
 ---
 
