@@ -160,13 +160,13 @@ osservata a valle, quindi si tratta di un problema al contorno. Le stazioni di m
 
 ### 3.4 Orizzonte utile
 
-L'orizzonte previsionale utile non è arbitrario, ma potrebbe essere potenzialmente limitato dal tempo di transito dell'onda dalle stazioni di monte (almeno fisicamente è così). Mentre l'orizzonte predittivo è d valutare con i dati a disposizione per prevedere con x ore di anticipo e si mira a stimarlo relazionando gli eventi storici edi dati a dispozione.
+L'orizzonte previsionale utile potrebbe essere potenzialmente limitato dal tempo di transito dell'onda dalle stazioni di monte (almeno fisicamente è così). Mentre l'orizzonte predittivo è da valutare con i dati a disposizione per prevedere con x ore di anticipo e si mira a stimarlo relazionando gli eventi storici edi dati a dispozione.
 
 ### 3.5 Soglie nei punti non strumentati (da valutare, complesso ma utile)
 
 Nei punti non strumentati le soglie ufficiali non esistono, e serve valutare come
 ricostruirle usando le sezioni adiacenti o altre informazioni, eventualmente di origine
-satellitare. Le soglie così ottenute sono stime e vanno presentate come tali, distinte
+satellitare. Le soglie così ottenute sono stime e vanno presentate come tali, potenzialmente distinte
 dai codici colore ufficiali.
 
 ### 3.6 Qualità del dato idrometrico
@@ -179,7 +179,7 @@ proprio gli eventi che interessano.
 Sarà necessario studiare in primo luogo queste dinamiche, affiancando metodi data-driven
 a vincoli di plausibilità fisica sulla velocità di variazione, coerenti con il tempo di
 risposta della sezione. Una leva utile è la coerenza fra stazioni dello stessa fiume:
-un'onda reale si manifesta anche a monte e a valle con il ritardo atteso, mentre un
+un'onda reale si manifesta a monte ed anche a valle con il ritardo atteso, mentre un
 guasto resta locale (potenziale logica da implementare ma no unica).
 
 Va tenuto presente un vincolo metodologico: se l'insieme usato per la calibrazione delle
@@ -205,7 +205,7 @@ modello idraulico. L'impostazione va approfondita in fase di analisi di dettagli
 ### 4.2 Stima di partenza e correzione appresa
 
 Se si conosce il livello dell'acqua nel fiume, una prima stima di dove l'acqua si
-espande si può ottenere dalla sola forma del terreno.
+espande si può ottenere dalla "forma" del terreno.
 Il terreno da solo, però, potenzialmente può non spiegare tutto. Argini, rilevati etc.. fanno sì che l'acqua reale si comporti
 diversamente da come farebbe su una superficie priva di opere.
 
@@ -215,23 +215,23 @@ L'impostazione prevista è quindi in due passi (da valutare, l'impostazione è i
 2. una **correzione appresa** sugli eventi realmente osservati, che modifica quella
    stima dove la realtà se ne è discostata.
 
-Potenzialmente fare learning da una correzione oppure farlo da zero stiando lo spostamento dell'acqua.
+Potenzialmente fare learning da una correzione oppure farlo da zero stimado lo spostamento dell'acqua.
 
 Per la stima di partenza esistono più modi possibili, che si distinguono per quanta
 informazione sul terreno richiedono e per quanto bene reggono su terreni diversi. La
 scelta va fatta in fase di dettaglio progettuale valutando alcune opzioni (a seguire alcuni esempi ma ancora da definire):
 
-- quota risoetto al terreno e/o quota rispetto al punto i drenaggio più vicino
+- quota rispetto al terreno e/o quota rispetto al punto i drenaggio più vicino
 - forma della piana alluvionale per individuare l'area potenzialmente allagabile
 - mappe di pericolosità (già esistenti)
 - eventi passati (evento storico con livelli più simili e si riusa la sua estensione osservata)
 
 Il punto importante è che la stima di partenza viene calcolata o con un punti noti (stazioni) o meglio anche con il profilo longitudinale totale che
-la Fase 1 produce lungo il fiume, inclusi i punti fra un idrometro e l'altro.
+la Fase 1 potrebbe produrre lungo il fiume, inclusi i punti fra un idrometro e l'altro.
 
 ### 4.3 Ingresso dalla Fase 1 e degradabilità
 
-Il modello riceve input in diversi modi (da valutare inbase alla complessità ed alle modalità pratiche implementate nella fase 1) : 
+Il modello riceve input in diversi modi (da valutare in base alla complessità ed alle modalità pratiche implementate nella fase 1) : 
 - profilo completo con incertezza nella configurazione nominale
 - profilo senza incertezza
 - singolo livello osservato sui punti noti (stazioni)
@@ -245,7 +245,7 @@ livello all'ora di acquisizione, ricostruito dalla serie idrometrica, sarebbe il
 
 ### 4.5 Output della Fase 2
 
-Una stima dell'area presumibilmente interessata, corredata da quantificazione
+Una stima dell'area presumibilmente interessata, con vari orizzonti temporali, corredata da quantificazione
 dell'incertezza in forma di regione.
 
 ---
@@ -267,11 +267,11 @@ distanza dal più vicino idrometro. È un
 risultato riutilizzabile da chiunque disponga di una rete idrometrica.
 
 Quale variante di conformal sia la più adatta, dato che le serie sono autocorrelate e
-non stazionarie, è una scelta da compiere sui dati.
+potenzialmente non stazionarie, è una scelta da compiere sui dati ed in base alle valutazioni sulla letteratura specifica sul tema Conformal.
 
 ### 5.2 Il problema nella Fase 2
 
-Qui l'oggetto garantito non è un intervallo ma una regione: un contorno interno di aree
+Qui l'oggetto garantito potrebbe anche essere un intervallo oltre che una regione: un contorno interno di aree
 quasi certamente allagate e uno esterno di aree possibili, con garanzia che l'estensione
 reale sia contenuta fra i due.
 
@@ -307,12 +307,13 @@ sull'archivio storico.
 
 ## 7. Dati
 
-Tutte le fonti sono (devono) essere aperte.
+Tutte le fonti sono essere aperte.
 
 **Idrometria.** Archivi regionali e soglie ufficiali per sezione. Si lavora sui livelli
 e non sulle portate, poiché queste dipendono da scale di deflusso soggette ad
 aggiornamento continuo. Dato che lo zero idrometrico è una quota convenzionale diversa
-per ogni stazione, tutte le variabili vanno gestite rispetto a questo punto.
+per ogni stazione, tutte le variabili vanno gestite rispetto a questo punto. 
+Dettagli su licenze d'uso già riportato nella sezione 1.1
 
 **Satellite.** Da valutare quali dati usare-
 L'archivio non è omogeneo nel tempo, e la disomogeneità va tenuta in conto. Quali/quanti
