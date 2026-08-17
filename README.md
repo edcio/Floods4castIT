@@ -62,7 +62,7 @@ confidenza, sfruttando framework come Conformal Prediction.
 ### 1.1 Disponibilità dei dati
 Per la fase 1, da [dext3r (dati per l'Emilia Romagna)](https://simc.arpae.it/dext3r/) abbiamo quasi 300 stazioni di rilevazione del livello idrometrico con dati da 15/20 anni con alcune stazioni con dati anche fino a 25 anni. Nell'esempio di valutazione per la disponibilità dei dati si vede come già una singola stazione fornisca 500k rilevazioni (dati di un ordine i grandezza superiore a quelli usati da alcuni studi disponibili sul tema).
 
-sia per Emilia-Romagna che per Toscana non sono presenti vincoli dirimenti per l'audio dei dati per la proposta progettuale.
+sia per Emilia-Romagna che per Toscana non sono presenti vincoli dirimenti per l'uso dei dati per la proposta progettuale.
 
 Per l'Emilia-Romagna
 - Livelli idrometrici storici, da Arpae SIMC, rete idrometeorologica regionale (RIRER).
