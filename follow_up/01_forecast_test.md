@@ -1,7 +1,5 @@
 # Primi test di previsione e confronto tra modelli
 
-## Obiettivo
-
 Questa prima fase di lavoro serve a confrontare diversi approcci alla previsione su serie temporali.
 
 Per ora il lavoro è focalizzato su una singola stazione, usando solo i suoi dati per il training e la valutazione. 
@@ -24,15 +22,18 @@ Di seguito sono riportati i primi confronti. I risultati sono ancora preliminari
 
 ### Persistenza
 
-![Grafico delle previsioni con persistenza](docs/img/01_forecast_test/grafico%20solo%20persistenza.png)
+![Grafico delle previsioni con persistenza](../docs/img/01_forecast_test/grafico%20solo%20persistenza.png)
+
 
 ### TimesFM-3 e confronto con la persistenza
 
 Per ora la valutazione riguarda un numero limitato di giorni, a causa dei tempi di esecuzione dell'inferenza.
 
-![Grafico di confronto tra TimesFM e persistenza](docs/img/01_forecast_test/TimesFM-grafico%20confronto.png)
+![Grafico di confronto tra TimesFM e persistenza](../docs/img/01_forecast_test/TimesFM-grafico%20confronto.png)
 
-![Statistiche di confronto tra TimesFM e persistenza: dettaglio per giorno](docs/img/01_forecast_test/TimesFM-vs-persistenza-stats_giorni_dettaglio.png)
+statistiche solo sui giocni con picchi tra livello arancione e rosso o sopra rosso
+
+![Statistiche di confronto tra TimesFM e persistenza: dettaglio per giorno](../docs/img/01_forecast_test/TimesFM-vs-persistenza-stats_giorni_dettaglio.png)
 
 ### CatBoost e confronto con la persistenza
 
@@ -40,9 +41,11 @@ Per ora il training è stato eseguito senza hyperparameter tuning su validation 
 
 Sono già incluse le feature che descrivono la stazione, ma in questi test non permettono di avere particolari effetti, perché i dati utilizzati provengono soltanto da Faenza. Il loro contributo probabilmente valutato quando il training includerà più stazioni.
 
-![Grafico di confronto tra CatBoost e persistenza](docs/img/01_forecast_test/catboost-vs-persistenza.png)
+![Grafico di confronto tra CatBoost e persistenza](../docs/img/01_forecast_test/catboost-vs-persistenza.png)
 
-![Statistiche di confronto tra CatBoost e persistenza: riepilogo e dettaglio](docs/img/01_forecast_test/catboost_vs_persistenza_stats_all_e_dettaglio.png)
+statistiche sia sul periodo di test che sui giorni specifici con con picchi tra livello arancione e rosso o sopra rosso
+
+![Statistiche di confronto tra CatBoost e persistenza: riepilogo e dettaglio](../docs/img/01_forecast_test/catboost_vs_persistenza_stats_all_e_dettaglio.png)
 
 ## Prossime attività
 
