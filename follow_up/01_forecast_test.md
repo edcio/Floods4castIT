@@ -57,8 +57,8 @@ statistiche sia sul periodo di test che sui giorni specifici con con picchi tra 
 
 ### 2. Estendere i test a più stazioni
 
-Effettuare il forecast no soo sul valore raw ma anche su quello riscalato rispetto alle soglie.
-Utilizzare i dati di tutte le stazioni per il training e valutare se questo approccio migliora le previsioni rispetto ai modelli addestrati sulla singola stazione.
+Effettuare il forecast non solo sul valore raw ma anche su quello riscalato rispetto alle soglie.
+Utilizzare i dati di tutte le stazioni per il training e valutare se questo approccio migliora le previsioni rispetto ad un modello addestrato sulla singola stazione.
 
 ### 3. Organizzare la pipeline di training e validazione
 
